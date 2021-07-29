@@ -1,0 +1,59 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200);}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>if условие then действие</h1><br>
+	<h1 class=guide>Описание:</h1>Структура условного перехода. Когда удволетворяется условие (не равно <b>null</b>, <b>0</b>,<b>0.0</b>,<b>""</b>) - выполняется действие. Если условие не удволетворяется (<b>else</b>) выполняется альтернативное действие.<br><br>
+	<h1 class=guide>Пример:</h1>
+	
+	<table width=100%>
+		<tr>
+			<td class=example>
+				local a=rand(0, 1), b=rand(0, 1), c=rand(0, 1)<br>
+				local d=rand(0, 30)<br><br>
+				
+				if a==true then print("first condition is true!")<br><br>
+				
+				if b==true<br>
+					&nbsp&nbsp&nbsp print("second condition is true!")<br>
+				end<br><br>
+				
+				if c<br>
+					&nbsp&nbsp&nbsp print("third condition is true!")<br>
+				else<br>
+					&nbsp&nbsp&nbsp print("third condition is false!")<br>
+				end<br><br>
+				
+				if c<10<br>
+					&nbsp&nbsp&nbsp print("fourth condition value is less than 10!")<br>
+				else if c<20<br>
+					&nbsp&nbsp&nbsp print("fourth condition value is greater than 10 but less than 20!")<br>
+				else<br>
+					&nbsp&nbsp&nbsp print("fourth condition value is greater than 20!")<br>
+				end<br>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,45 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200);}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>выражение and выражение</h1><br>
+	<h1 class=guide>Описание:</h1>Логический оператор И.<br><br>
+	<h1 class=guide>Пример:</h1>
+	
+	<table width=100%>
+		<tr>
+			<td class=example>
+				def condition()<br>
+					&nbsp&nbsp&nbsp x=rand(0, 1)<br>
+					&nbsp&nbsp&nbsp print(x)<br>
+					&nbsp&nbsp&nbsp return x<br>
+				end<br><br>
+				
+				//Если в первых двух вызовах функции condition() будет получено значение 1 то будет функция print() выведет на экран две единицы<br>
+				condition() and condition() and condition() 
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

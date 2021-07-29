@@ -1,0 +1,61 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200);}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>
+	select значение<br>
+		&nbsp&nbsp&nbsp case значение1<br>
+			&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp выражение1<br>
+	end<br>
+	</h1>
+	
+	<h1 class=guide>Описание:</h1>Позволяет построить структуру выбора вместо множественных структур <b>if</b>.<br><br>
+	<h1 class=guide>Пример:</h1>
+	
+	<table width=100%>
+		<tr>
+			<td class=example>
+				local fighter=rand(1, 10)<br><br>
+				
+				select fighter<br>
+					&nbsp&nbsp&nbsp case 1<br>
+						&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp print("You are warrior! Show them your berserker fury!")<br><br>
+						
+					&nbsp&nbsp&nbsp case 2<br>
+						&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp print("You are mage! Freeze your enemies, burn them down and throw fireballs in all directions!")<br><br>
+						
+					&nbsp&nbsp&nbsp case 3<br>
+						&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp print("You are archer! Shoot your enemies on far distance!")<br><br>
+						
+					&nbsp&nbsp&nbspcase 4, 5<br>
+						&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp print("Knight and assassin will be available on 'nightmare' difficulty level!")<br><br>
+						
+					&nbsp&nbsp&nbsp else<br>
+						&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp print("More characters will be available in upcoming expansion pack!")<br>
+				end select
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
