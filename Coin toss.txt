@@ -1,0 +1,14 @@
+//Coin toss example
+//Пример "орёл или решка"
+
+local label=["Heads!", "Tails!"]
+
+local answer=rand(0, 1)
+
+local decision=input_int("heads(0) or tails(1)? :")
+
+if decision==answer
+	print("Right! "+label[answer]+" You win!")
+else
+	print("Wrong! "+label[answer]+" You lose!")
+end

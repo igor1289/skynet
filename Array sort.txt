@@ -1,0 +1,66 @@
+//Array sort expamle
+
+
+/*
+Пример сортировки массива в скрипте.
+*/
+
+
+
+//функция для отображения элементов массива, добавляется из внешнего файла
+#include "print_a.txt"
+
+
+
+
+
+//функция сортировки массива
+
+
+def sort_array(array)
+	local length=len array
+	local index=0		//индекс куда перемещается наименьший элемент массива
+	local min		//минимальное значение
+	local min_index		//индекс минимального значения
+
+	do
+		min=array[index]
+		min_index=-1
+
+		for i=index+1; i<length; ++i
+			local k=array[i]
+
+			if k<min
+				min_index=i
+				min=k
+			end
+		end
+
+		if min_index>=0
+			array[min_index]=array[index]
+			array[index]=min
+		end
+
+		++index
+		if index>length then break
+	end
+end
+
+
+local _array=[3, 4, 1, 5, 7, 8, 2, 6]
+
+
+print("unsorted:")
+print_a(_array)
+
+sort_array(_array)
+
+print("sorted:")
+print_a(_array)
+
+
+
+
+
+
+

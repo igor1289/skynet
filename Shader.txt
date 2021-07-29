@@ -1,0 +1,23 @@
+//Shader example
+
+global cube
+global texture
+static a, x, y
+
+
+
+def init()
+	cube=create_cube()
+	texture=load_texture("Media\Abyss.png")
+	entity_texture(cube, texture)
+end
+
+
+
+++a
+x=cos(a)*.5
+y=sin(a)*.5
+
+position_texture(texture, x, y)
+
+turn(cube, 0, 2, 0)

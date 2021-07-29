@@ -1,0 +1,14 @@
+//Entity control example
+
+/*
+Создаём куб и крутим его =)
+*/
+
+global cube
+
+def init()
+	cube=create_cube()
+end
+
+
+turn(cube, 0, 2, 0)

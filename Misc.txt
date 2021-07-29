@@ -1,0 +1,26 @@
+#include "print_a.txt"
+
+def int_filter(array)
+	local length=len array
+	local integer
+
+	if length==0 then return
+
+	integer=[]
+
+	for i=0; i<length; ++i
+		if (typeof array[i])==se_int
+			array_push(integer, array[i])
+		end
+	end
+
+	return integer
+end
+
+local arr=[1, "oops", 2.0, 3, 4, 5]
+
+print_a(arr)
+
+integer=int_filter(arr)
+
+print_a(integer)

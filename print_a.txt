@@ -1,0 +1,10 @@
+def print_a(array)
+	local length=len array
+	local output
+	
+	for i=0; i<length; ++i
+		output=output+array[i]+" "
+	end
+
+	print(output)
+end

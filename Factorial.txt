@@ -1,0 +1,16 @@
+//Factorial
+//Вычисление факториала числа
+
+
+def fact(n)
+	if n>1
+		return n*fact(n-1)
+	end
+	return 1
+end
+
+local n=4
+
+f=fact(n)
+
+print("!"+n+"="+f)

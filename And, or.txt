@@ -1,0 +1,15 @@
+//Logical AND, OR example
+//Примеры логических И, ИЛИ
+
+local x=rand(0, 2)
+local y=rand(0, 2)
+local z=rand(0, 2)
+
+local my_and=(x and y and z)
+local my_or=x or y or z
+
+
+
+print(x+", "+y+", "+z)
+print("AND: "+my_and)
+print("OR: "+my_or)
