@@ -1,0 +1,46 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_FindFunc.SE_FuncPtr(Script.SE_Script, Name$)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Осуществляет поиск нужной функции в скрипте.<br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Script.SE_Script</b> - Скрипт в котором нужно найти функцию.<br>
+	<b>Name$</b> - Имя функции.
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+			Local Script.SE_Script=SE_LoadScriptText("my_script.txt")<br>
+			Local F.SE_FuncPtr=SE_FindFunc.SE_FuncPtr(Script, "my_function")<br>
+			SE_InvokeUserFunction(F)
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,45 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_DeleteScript(Script.SE_Script)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Удаляет скрипт из памяти. При удалении скрипта, его экземпляры (инстансы) не удаляются. Их необходимо удалить самостоятельно.<br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Script.SE_Script</b> - Скрипт который необходимо удалить.<br>
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+				SE_CompileScript("script.txt", "my_script.sky")
+				Local Script.SE_Script=SE_LoadScriptBin.SE_Script("my_script.sky")
+				SE_DeleteScript(Script)
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

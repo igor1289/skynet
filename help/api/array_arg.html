@@ -1,0 +1,57 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_ArrayArg.SE_Value(Index)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Позволяет получить аргумент вызванной глобальной функции по индексу.
+	Возвращаемое значение является массивом переданным в качестве аргумента при вызове глобальной функции.</b><br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Index</b> - Индекс аргумента. Должен быть в радиусе от [0, количество аргументов). <br>
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+				Function SE_InvokeGlobalFunction(FunctionName$)<br>
+					&nbsp&nbsp&nbsp If SE_BL_Math(FunctionName$) Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Str(FunctionName$) Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Array(FunctionName$) Then Return<br><br>
+					
+					&nbsp&nbsp&nbsp If FunctionName="set_vector"<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Vec.SE_Array=SE_ArrayArg(0)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp If Vec<>Null<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp &nbsp&nbsp&nbsp x#=SE_Array_GetValue(Vec, 0)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp &nbsp&nbsp&nbsp y#=SE_Array_GetValue(Vec, 1)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp &nbsp&nbsp&nbsp z#=SE_Array_GetValue(Vec, 2)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp EndIf
+					&nbsp&nbsp&nbsp EndIf<br>
+				End Function
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

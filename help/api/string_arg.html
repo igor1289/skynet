@@ -1,0 +1,54 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_StringArg%(Index, DefValue$="")</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Позволяет получить аргумент вызванной глобальной функции по индексу.
+	Особенность этой функции отличается в том, что она получает СТРОГО строковые значения.
+	Если индекс аргумента выходит за рамки количества аргументов или имеет другой тип значения, то возвращается значение по умолчанию указанное в качестве параметра <b>DefValue$</b><br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Index</b> - Индекс аргумента. Должен быть в радиусе от [0, количество аргументов). <br>
+	<b>DefValue$=""</b> - Значение возвращаемое по умолчанию.
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+				Function SE_InvokeGlobalFunction(FunctionName$)<br>
+					&nbsp&nbsp&nbsp If SE_BL_Math(FunctionName$)Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Str(FunctionName$) Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Array(FunctionName$) Then Return<br><br>
+					
+					&nbsp&nbsp&nbsp If FunctionName="print"<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Print(SE_StringArg(0, "undefined"))<br>
+					&nbsp&nbsp&nbsp EndIf<br>
+				End Function
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

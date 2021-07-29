@@ -1,0 +1,46 @@
+<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_FindPublic.SE_Public(Script.SE_Script, Name$)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Осуществляет поиск нужной публичной переменной в скрипте.<br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Script.SE_Script</b> - Скрипт в котором нужно найти переменную.<br>
+	<b>Name$</b> - Имя переменной.
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+			Local Script.SE_Script=SE_LoadScriptText("my_script.txt")<br>
+			Local V.SE_Public=SE_FindPublic.SE_Public(Script, "my_var")<br>
+			Print V\Value\ValueType
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

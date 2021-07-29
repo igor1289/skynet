@@ -1,0 +1,45 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_CreateInstance.SE_Instance(Script.SE_Script)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Создаёт экземпляр (инстанс) скрипта. Экземпляр позволяет обрабатывать, одним и тем же скриптом, разные наборы данных без повторной загрузки скрипта.
+	Что существенно экономит память. При создании экземпляра, копируются переменные типа 'public', для последующей их обработки.<br>
+	
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Script.SE_Script</b> - Скрипт, экземпляр которого необходимо создать.<br>
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+				;See "Example 3 - Instance.bb"
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,66 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_ReturnArray(Array.SE_Array)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Возвращает массив после вызова глобальной функции.
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>Array.SE_Array</b> - Массив который нужно вернуть в скрипт.<br>
+	
+	<h1 class=guide>Пример:</h1>
+	<table width=100%>
+		<tr>
+			<td class=example>
+				Function SE_InvokeGlobalFunction(FunctionName$)<br>
+					&nbsp&nbsp&nbsp If SE_BL_Math(FunctionName$) Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Str(FunctionName$) Then Return<br>
+					&nbsp&nbsp&nbsp If SE_BL_Array(FunctionName$) Then Return<br><br>
+					
+					&nbsp&nbsp&nbsp If FunctionName="get_pos"<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp x#=EntityX(SE_IntArg(0))<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp y#=EntityY(SE_IntArg(0))<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp z#=EntityZ(SE_IntArg(0))<br><br>
+					
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Local Array.SE_Array=SE_Array_Create()<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Local Value.SE_Value<br><br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value=SE_Array_AddElement(Array)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\ValueType=SE_FLOAT<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\Value=x<br><br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value=SE_Array_AddElement(Array)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\ValueType=SE_FLOAT<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\Value=y<br><br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value=SE_Array_AddElement(Array)<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\ValueType=SE_FLOAT<br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp Value\Value=z<br><br>
+					&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp SE_ReturArray(Array)<br>
+					&nbsp&nbsp&nbsp EndIf<br>
+				End Function
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

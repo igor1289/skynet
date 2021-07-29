@@ -1,0 +1,35 @@
+﻿<html>
+<head>
+</head>
+<body>
+	<style>
+		body{background-color: rgb(200, 200, 200)}
+		
+		h1.title
+		{
+			font-family: arial;
+		}
+		
+		td.example
+		{
+			font: normal 16px arial;
+			margin-left: 30px;
+			background-color: rgb(180, 180, 180);
+		}
+		
+		h1.guide
+		{
+			font: bold 16px arial;
+		}
+	</style>
+	
+	<h1 class=title>SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)</h1>
+	
+	<h1 class=guide>Описание:</h1>
+	Позволяет выполнить пользовательскую функцию описанную в скрипте.<br>
+	
+	<h1 class=guide>Параметры:</h1>
+	<b>FuncPtr.SE_FuncPtr</b> - указатель на функцию, которую необходимо вызвать. Его можно получить с помощью функции SE_FindFunc()<br>
+	<b>GCCollect=True</b> - параметр очистки памяти. Необходим только виртуальной машине, чтобы не очистить память "раньше времени".
+</body>
+</html>
