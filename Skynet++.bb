@@ -2821,12 +2821,6 @@ Function SE_LoadScriptExec.SE_Script(FileName$)
 				SE_VF_A_INST(Index)\B=SE_ReadArg(File)
 				SE_VF_A_INST(Index)\C=SE_ReadArg(File)
 		End Select
-
-		Local DBG$=SE_VF_A_INST(Index)\Code+": "
-		If SE_VF_A_INST(Index)\A<>Null Then DBG=DBG+SE_VF_A_INST(Index)\A\ValueType+", "
-		If SE_VF_A_INST(Index)\B<>Null Then DBG=DBG+SE_VF_A_INST(Index)\B\ValueType+", "
-		If SE_VF_A_INST(Index)\C<>Null Then DBG=DBG+SE_VF_A_INST(Index)\C\ValueType
-		DebugLog DBG
 	Next
 
 	Script\Main=Script\FirstFuncPtr
