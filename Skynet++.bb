@@ -140,13 +140,13 @@ Function SE_CreateInst.SE_Inst(Script.SE_Script, Code, A.SE_Value, B.SE_Value, C
 		Script\FirstInst=Inst
 		Script\LastInst=Inst
 	EndIf
-	
+
 	Return Inst
 End Function
 
 Function SE_CreateFuncPtr.SE_FuncPtr(Script.SE_Script, Name$, FirstInst.SE_Inst, LastInst.SE_Inst, TransientValues, Arguments)
 	Local FuncPtr.SE_FuncPtr=New SE_FuncPtr
-	
+
 	FuncPtr\Name=Name
 	FuncPtr\Script=Script
 	FuncPtr\FirstInst=FirstInst
@@ -200,41 +200,41 @@ End Function
 
 Function SE_Array_AddElement.SE_Value(Array.SE_Array)
 	Local V.SE_Value=New SE_Value
-	
+
 	Local Offset=Array\Elements*4
 	Array\Elements=Array\Elements+1
 	ResizeBank Array\Bank, Array\Elements*4
 	PokeInt Array\Bank, Offset, Handle(V)
-	
+
 	Return V
 End Function
 
 Function SE_Array_FreeElement(Array.SE_Array, Index)
 	If Array\Elements=0 Then Return
-	
+
 	If Index>=0 And Index<=Array\Elements
 		Array\Elements=Array\Elements-1
 		Local Bank=Array\Bank
 		Local Size=Array\Elements*4
 		Local Offset=Index*4
-		
+
 		Local Value.SE_Value=Object.SE_Value(PeekInt(Bank, Offset))
 		SE_GCCheck(Value)
 		Delete Value
-		
+
 		Local NewBank=CreateBank(Size)
-		
+
 		If Offset=0
 			CopyBank Bank, 4, NewBank, 0, Size
-			
+
 		Else If Offset=Size
 			CopyBank Bank, 0, NewBank, 0, Size
-			
+
 		Else
 			CopyBank Bank, 0, NewBank, 0, Offset
 			CopyBank Bank, Offset+4, NewBank, Offset, Size-Offset
 		EndIf
-		
+
 		FreeBank Array\Bank
 		Array\Bank=NewBank
 	EndIf
@@ -242,7 +242,7 @@ End Function
 
 Function SE_Array_GetElement.SE_Value(Array.SE_Array, Index)
 	If Array\Elements=0 Then Return
-	
+
 	If Index>=0 And Index<Array\Elements
 		Local Value.SE_Value=Object.SE_Value(PeekInt(Array\Bank, Index*4))
 		Return Value
@@ -253,13 +253,13 @@ Function SE_Array_Delete(Array.SE_Array)
 	Local Bank=Array\Bank
 	Local EndOffset=(Array\Elements-1)*4
 	Local Offset
-			
+
 	For Offset=0 To EndOffset Step 4
 		Local Value.SE_Value=Object.SE_Value(PeekInt(Bank, Offset))
 		SE_GCCheck(Value)
 		Delete Value
 	Next
-			
+
 	FreeBank Bank
 End Function
 
@@ -313,19 +313,19 @@ Dim SE_AUX_ARGUMENTS_STACK.SE_Value(0)
 
 Function SE_Init()
 	;Initialize transient stack
-	Dim SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_SIZE)
+	Dim SE_TRANSIENT_STACK.SE_Value(SE_TRANSIENT_STACK_SIZE)
 	Dim SE_AUX_TRANSIENT_STACK(SE_TRANSIENT_STACK_SIZE)
 
 	Local I
-	
+
 	For I=0 To SE_TRANSIENT_STACK_SIZE
 		SE_TRANSIENT_STACK(I)=New SE_Value
 	Next
 
 	;Initialize arguments stack
-	Dim SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_SIZE)
+	Dim SE_ARGUMENTS_STACK.SE_Value(SE_ARGUMENTS_STACK_SIZE)
 	Dim SE_AUX_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_SIZE)
-	
+
 	For I=0 To SE_ARGUMENTS_STACK_SIZE
 		SE_ARGUMENTS_STACK(I)=New SE_Value
 	Next
@@ -336,7 +336,7 @@ End Function
 Function SE_GrowTransient()
 	If SE_TRANSIENT_STACK_LEVEL>SE_TRANSIENT_STACK_SIZE		;stack  overflow
 		Local I
-		Dim SE_AUX_TRANSIENT_STACK(SE_TRANSIENT_STACK_SIZE)
+		Dim SE_AUX_TRANSIENT_STACK.SE_Value(SE_TRANSIENT_STACK_SIZE)
 
 		;temporary move transient stack values to aux stack
 		For I=0 To SE_TRANSIENT_STACK_SIZE
@@ -344,7 +344,7 @@ Function SE_GrowTransient()
 		Next
 
 		;resize transient stack array
-		Dim SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_LEVEL)
+		Dim SE_TRANSIENT_STACK.SE_Value(SE_TRANSIENT_STACK_LEVEL)
 
 		;move transient stack values back to main stack
 		For I=0 To SE_TRANSIENT_STACK_SIZE
@@ -363,7 +363,7 @@ End Function
 Function SE_GrowArguments()
 	If SE_ARGUMENTS_STACK_LEVEL>SE_ARGUMENTS_STACK_SIZE		;stack  overflow
 		Local I
-		Dim SE_AUX_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_SIZE)
+		Dim SE_AUX_ARGUMENTS_STACK.SE_Value(SE_ARGUMENTS_STACK_SIZE)
 
 		;temporary move arguments stack values to aux stack
 		For I=0 To SE_ARGUMENTS_STACK_SIZE
@@ -371,7 +371,7 @@ Function SE_GrowArguments()
 		Next
 
 		;resize arguments stack array
-		Dim SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_LEVEL)
+		Dim SE_ARGUMENTS_STACK.SE_Value(SE_ARGUMENTS_STACK_LEVEL)
 
 		;move arguments stack values back to main stack
 		For I=0 To SE_ARGUMENTS_STACK_SIZE
@@ -393,26 +393,26 @@ Function SE_Array_Create_Inst(ElementsNumber, ReturnValue.SE_Value)
 
 	If SE_ARGUMENTS_NUMBER
 		Local Args=SE_ARGUMENTS_NUMBER-1
-	
+
 		For Index=0 To Args
 			Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
 			Local Element.SE_Value=SE_Array_AddElement(Array)
 
 			Element\ValueType=Argument\ValueType
-			
+
 			Select Argument\ValueType
 				Case SE_INT
 					Element\IntValue=Argument\IntValue
-					
+
 				Case SE_FLOAT
 					Element\FloatValue=Argument\FloatValue
-					
+
 				Case SE_STRING
 					Element\StringValue=Argument\StringValue
-					
+
 				Case SE_POINTER
 					Element\Pointer=Argument\Pointer
-					
+
 				Case SE_ARRAY
 					Element\Array=Argument\Array
 			End Select
@@ -431,14 +431,14 @@ Function SE_GetAccessorValue.SE_Value(Value.SE_Value)
 	Else
 		Value=Value\Pointer
 	EndIf
-	
+
 	Return Value
 End Function
 
 Function SE_GetFinalValue.SE_Value(Value.SE_Value)
 	If Value\ValueType=SE_POINTER Or Value\ValueType=SE_ACCESSOR
 		Value\ValueType=SE_NULL
-		
+
 		If Value\Pointer=Null
 			Value\ValueType=SE_NULL
 		Else
@@ -458,34 +458,34 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 	SE_TRANSIENT_STACK_OFFSET=SE_TRANSIENT_STACK_LEVEL
 	SE_TRANSIENT_STACK_LEVEL=SE_TRANSIENT_STACK_LEVEL+SE_CURRENT_FUNCTION\TransientValues
-	
+
 	SE_GrowTransient()
 
 	If SE_ARGUMENTS_NUMBER>0
 		SE_ARGUMENTS_STACK_OFFSET=SE_ARGUMENTS_STACK_LEVEL-SE_ARGUMENTS_NUMBER
-		
+
 		For ArgumentIndex=0 To SE_CURRENT_FUNCTION\Arguments-1
 			If ArgumentIndex=SE_ARGUMENTS_NUMBER Then Exit
 			Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+ArgumentIndex)
 			Local Transient.SE_Value=SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_OFFSET+ArgumentIndex)
-			
+
 			Select Argument\ValueType
 				Case SE_INT
 					Transient\ValueType=SE_INT
 					Transient\IntValue=Argument\IntValue
-					
+
 				Case SE_FLOAT
 					Transient\ValueType=SE_FLOAT
 					Transient\FloatValue=Argumalue
-					
+
 				Case SE_STRING
 					Transient\ValueType=SE_STRING
 					Transient\StringValue=Argument\StringValue
-					
+
 				Case SE_POINTER
 					Transient\ValueType=SE_POINTER
 					Transient\Pointer=Argument\Pointer
-					
+
 				Case SE_ARRAY
 					Transient\ValueType=SE_ARRAY
 					Transient\Array=Argument\Array
@@ -512,13 +512,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				ValueA=SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_OFFSET+ValueA\IntValue)
 			EndIf
 		EndIf
-		
+
 		If ValueB<>Null
 			If ValueB\ValueType=SE_TRANSIENT
 				ValueB=SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_OFFSET+ValueB\IntValue)
 			EndIf
 		EndIf
-		
+
 		If ValueC<>Null
 			If ValueC\ValueType=SE_TRANSIENT
 				ValueC=SE_TRANSIENT_STACK(SE_TRANSIENT_STACK_OFFSET+ValueC\IntValue)
@@ -529,9 +529,9 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 			Case SE_MOV
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				SE_GCCheck(ValueA)
-				
+
 				Select ValueB\ValueType
 					Case SE_NULL
 						ValueA\ValueType=SE_NULL
@@ -549,11 +549,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						ValueA\Array=ValueB\Array
 						ValueA\Array\References=ValueA\Array\References+1
 				End Select
-				
+
 			Case SE_ADD
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						Select ValueB\ValueType
@@ -573,7 +573,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								ValueC\ValueType=SE_STRING
 								ValueC\StringValue="nullNaN"
 						End Select
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -592,7 +592,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								ValueC\ValueType=SE_STRING
 								ValueC\StringValue=ValueA\IntValue+"NaN"
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -611,7 +611,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								ValueC\ValueType=SE_STRING
 								ValueC\StringValue=ValueA\FloatValue+"NaN"
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -630,16 +630,16 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								ValueC\ValueType=SE_STRING
 								ValueC\StringValue=ValueA\StringValue+"NaN"
 						End Select
-						
+
 					Default
 						ValueC\ValueType=SE_STRING
 						ValueC\StringValue="NaN"
 				End Select
-				
+
 			Case SE_SUB
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				If ValueA\ValueType<SE_STRING And ValueB\ValueType<SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
@@ -654,7 +654,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									ValueC\ValueType=SE_FLOAT
 									ValueC\FloatValue=-ValueB\FloatValue
 							End Select
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -667,7 +667,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									ValueC\ValueType=SE_FLOAT
 									ValueC\FloatValue=ValueA\IntValue-ValueB\FloatValue
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -685,17 +685,17 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					ValueC\ValueType=SE_STRING
 					ValueC\StringValue="NaN"
 				EndIf
-				
+
 			Case SE_MUL
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				If ValueA\ValueType<SE_STRING And ValueB\ValueType<SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
 							ValueC\ValueType=SE_INT
 							ValueC\IntValue=0
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -708,7 +708,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									ValueC\ValueType=SE_FLOAT
 									ValueC\FloatValue=ValueA\IntValue*ValueB\FloatValue
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -726,11 +726,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					ValueC\ValueType=SE_STRING
 					ValueC\StringValue="NaN"
 				EndIf
-				
+
 			Case SE_DIV
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				If ValueA\ValueType<SE_STRING And ValueB\ValueType<SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
@@ -738,7 +738,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_NULL
 									ValueC\ValueType=SE_STRING
 									ValueC\StringValue="NaN"
-									
+
 								Case SE_INT
 									If ValueB\IntValue<>0
 										ValueC\ValueType=SE_INT
@@ -747,7 +747,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
 									EndIf
-									
+
 								Case SE_FLOAT
 									If ValueB\FloatValue<>0
 										ValueC\ValueType=SE_INT
@@ -757,14 +757,14 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\StringValue="NaN"
 									EndIf
 							End Select
-							
+
 						Case SE_INT
 							If ValueA\IntValue<>0
 								Select ValueB\ValueType
 									Case SE_NULL
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="Infinity"
-										
+
 									Case SE_INT
 										If ValueB\IntValue<>0
 											ValueC\ValueType=SE_INT
@@ -773,7 +773,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 											ValueC\ValueType=SE_STRING
 											ValueC\StringValue="Infinity"
 										EndIf
-										
+
 									Case SE_FLOAT
 										If ValueB\FloatValue<>0
 											ValueC\ValueType=SE_FLOAT
@@ -788,7 +788,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									Case SE_NULL
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
-										
+
 									Case SE_INT
 										If ValueB\IntValue<>0
 											ValueC\ValueType=SE_INT
@@ -797,7 +797,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 											ValueC\ValueType=SE_STRING
 											ValueC\StringValue="NaN"
 										EndIf
-										
+
 									Case SE_FLOAT
 										If ValueB\FloatValue<>0
 											ValueC\ValueType=SE_FLOAT
@@ -808,23 +808,23 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										EndIf
 								End Select
 							EndIf
-							
+
 						Case SE_FLOAT
 							If ValueA\IntValue<>0
 								Select ValueB\ValueType
 									Case SE_NULL
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="Infinity"
-										
+
 									Case SE_INT
 										If ValueB\IntValue<>0
 											ValueC\ValueType=SE_FLOAT
-											ValueC\IntValue=ValueA\FloatValue/ValueB\IntValue
+											ValueC\IntValue=Int(ValueA\FloatValue / ValueB\IntValue)
 										Else
 											ValueC\ValueType=SE_STRING
 											ValueC\StringValue="Infinity"
 										EndIf
-										
+
 									Case SE_FLOAT
 										If ValueB\FloatValue<>0
 											ValueC\ValueType=SE_FLOAT
@@ -839,7 +839,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									Case SE_NULL
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
-										
+
 									Case SE_INT
 										If ValueB\IntValue<>0
 											ValueC\ValueType=SE_FLOAT
@@ -848,7 +848,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 											ValueC\ValueType=SE_STRING
 											ValueC\StringValue="NaN"
 										EndIf
-										
+
 									Case SE_FLOAT
 										If ValueB\FloatValue<>0
 											ValueC\ValueType=SE_FLOAT
@@ -864,14 +864,14 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					ValueC\ValueType=SE_STRING
 					ValueC\StringValue="NaN"
 				EndIf
-			
+
 			Case SE_POW
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				If ValueA\ValueType<SE_STRING And ValueB\ValueType<SE_STRING
 					Select ValueA\ValueType
-					
+
 						Case SE_NULL
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -884,7 +884,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									ValueC\ValueType=SE_FLOAT
 									ValueC\FloatValue=0^ValueB\FloatValue
 							End Select
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -897,7 +897,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 									ValueC\ValueType=SE_FLOAT
 									ValueC\FloatValue=ValueA\IntValue^ValueB\FloatValue
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -915,20 +915,20 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					ValueC\ValueType=SE_STRING
 					ValueC\StringValue="NaN"
 				EndIf
-				
+
 			Case SE_MOD
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				If ValueA\ValueType<SE_STRING And ValueB\ValueType<SE_STRING
 					Select ValueA\ValueType
-					
+
 						Case SE_NULL
 							Select ValueB\ValueType
 								Case SE_NULL
 									ValueC\ValueType=SE_STRING
 									ValueC\StringValue="NaN"
-									
+
 								Case SE_INT
 									If ValueB\IntValue<>0
 										ValueC\ValueType=SE_INT
@@ -937,7 +937,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
 									EndIf
-									
+
 								Case SE_FLOAT
 									If ValueB\FloatValue<>0
 										ValueC\ValueType=SE_FLOAT
@@ -947,13 +947,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\StringValue="NaN"
 									EndIf
 							End Select
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
 									ValueC\ValueType=SE_STRING
 									ValueC\StringValue="NaN"
-									
+
 								Case SE_INT
 									If ValueB\IntValue<>0
 										ValueC\ValueType=SE_INT
@@ -962,7 +962,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
 									EndIf
-									
+
 								Case SE_FLOAT
 									If ValueB\FloatValue<>0
 										ValueC\ValueType=SE_FLOAT
@@ -972,13 +972,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\StringValue="NaN"
 									EndIf
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
 									ValueC\ValueType=SE_STRING
 									ValueC\StringValue="NaN"
-									
+
 								Case SE_INT
 									If ValueB\IntValue<>0
 										ValueC\ValueType=SE_FLOAT
@@ -987,7 +987,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 										ValueC\ValueType=SE_STRING
 										ValueC\StringValue="NaN"
 									EndIf
-									
+
 								Case SE_FLOAT
 									If ValueB\FloatValue<>0
 										ValueC\ValueType=SE_FLOAT
@@ -1002,7 +1002,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					ValueC\ValueType=SE_STRING
 					ValueC\StringValue="NaN"
 				EndIf
-				
+
 			Case SE_NEG
 				ValueA=SE_GetFinalValue(ValueA)
 
@@ -1010,20 +1010,20 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					Case SE_NULL
 						ValueB\ValueType=SE_INT
 						ValueB\IntValue=0
-					
+
 					Case SE_INT
 						ValueB\ValueType=SE_INT
 						ValueB\IntValue=-ValueA\IntValue
-					
+
 					Case SE_FLOAT
 						ValueB\ValueType=SE_FLOAT
 						ValueB\FloatValue=-ValueA\FloatValue
-					
+
 					Default
 						ValueB\ValueType=SE_STRING
 						ValueB\StringValue="NaN"
 				End Select
-				
+
 			Case SE_INC
 				ValueA=SE_GetFinalValue(ValueA)
 
@@ -1057,9 +1057,9 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 			Case SE_CE
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-			
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						If ValueB\ValueType=SE_NULL
@@ -1067,7 +1067,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						Else
 							ValueC\IntValue=0
 						EndIf
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1079,7 +1079,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1091,7 +1091,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1103,7 +1103,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array=ValueB\Array)
@@ -1111,13 +1111,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=0
 						EndIf
 				End Select
-				
+
 			Case SE_CNE
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						If ValueB\ValueType=SE_NULL
@@ -1125,7 +1125,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						Else
 							ValueC\IntValue=1
 						EndIf
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1137,7 +1137,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue<>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1149,7 +1149,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue<>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1161,7 +1161,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue<>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array<>ValueB\Array)
@@ -1169,17 +1169,17 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=1
 						EndIf
 				End Select
-				
+
 			Case SE_CG
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						ValueC\IntValue=0
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1191,7 +1191,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1203,7 +1203,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1215,7 +1215,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue>ValueB\StringValue)
 						End Select
-						
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array\Elements>ValueB\Array\Elements)
@@ -1223,13 +1223,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=0
 						EndIf
 				End Select
-				
+
 			Case SE_CL
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						If ValueB\ValueType=SE_NULL
@@ -1237,7 +1237,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						Else
 							ValueC\IntValue=1
 						EndIf
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1249,7 +1249,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue<ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1261,7 +1261,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue<ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1273,7 +1273,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue<ValueB\StringValue)
 						End Select
-						
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array\Elements<ValueB\Array\Elements)
@@ -1281,13 +1281,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=0
 						EndIf
 				End Select
-				
+
 			Case SE_CGE
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						If ValueB\ValueType=SE_NULL
@@ -1295,7 +1295,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						Else
 							ValueC\IntValue=0
 						EndIf
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1307,7 +1307,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue>=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1319,7 +1319,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue>=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1331,7 +1331,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue>=ValueB\StringValue)
 						End Select
-					
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array\Elements>=ValueB\Array\Elements)
@@ -1339,17 +1339,17 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=0
 						EndIf
 				End Select
-				
+
 			Case SE_CLE
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						ValueC\IntValue=1
-						
+
 					Case SE_INT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1361,7 +1361,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\IntValue<=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_FLOAT
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1373,7 +1373,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\FloatValue<=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_STRING
 						Select ValueB\ValueType
 							Case SE_NULL
@@ -1385,7 +1385,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Case SE_STRING
 								ValueC\IntValue=(ValueA\StringValue<=ValueB\StringValue)
 						End Select
-						
+
 					Case SE_ARRAY
 						If ValueB\ValueType=SE_ARRAY
 							ValueC\IntValue=(ValueA\Array\Elements<=ValueB\Array\Elements)
@@ -1393,18 +1393,18 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							ValueC\IntValue=0
 						EndIf
 				End Select
-				
+
 			Case SE_AND
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
 
 				If ValueA\ValueType<=SE_STRING And ValueB\ValueType<=SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
 							ValueC\IntValue=0
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1416,7 +1416,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\IntValue And ValueB\StringValue)
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1428,7 +1428,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\FloatValue And ValueB\StringValue)
 							End Select
-							
+
 						Case SE_STRING
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1448,9 +1448,9 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 			Case SE_XOR
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				If ValueA\ValueType<=SE_STRING And ValueB\ValueType<=SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
@@ -1460,11 +1460,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_INT
 									ValueC\IntValue=ValueB\IntValue
 								Case SE_FLOAT
-									ValueC\IntValue=ValueB\FloatValue
+									ValueC\IntValue=Int(ValueB\FloatValue)
 								Case SE_STRING
-									ValueC\IntValue=ValueB\StringValue
+									ValueC\IntValue=Int(ValueB\StringValue)
 							End Select
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1476,11 +1476,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\IntValue Xor ValueB\StringValue)
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\FloatValue
+									ValueC\IntValue=Int(ValueA\FloatValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Xor ValueB\IntValue)
 								Case SE_FLOAT
@@ -1488,11 +1488,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\FloatValue Xor ValueB\StringValue)
 							End Select
-							
+
 						Case SE_STRING
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\StringValue
+									ValueC\IntValue=Int(ValueA\StringValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Xor ValueB\IntValue)
 								Case SE_FLOAT
@@ -1507,9 +1507,9 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 			Case SE_BN
 				ValueA=SE_GetFinalValue(ValueA)
-				
+
 				ValueB\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						ValueB\IntValue=-1
@@ -1522,13 +1522,13 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					Default
 						ValueB\IntValue=-1
 				End Select
-				
+
 			Case SE_OR
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
-				
+
 				If ValueA\ValueType<=SE_STRING And ValueB\ValueType<=SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
@@ -1538,11 +1538,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_INT
 									ValueC\IntValue=ValueB\IntValue
 								Case SE_FLOAT
-									ValueC\IntValue=ValueB\FloatValue
+									ValueC\IntValue=Int(ValueB\FloatValue)
 								Case SE_STRING
-									ValueC\IntValue=ValueB\StringValue
+									ValueC\IntValue=Int(ValueB\StringValue)
 							End Select
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1554,11 +1554,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\IntValue Or ValueB\StringValue)
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\FloatValue
+									ValueC\IntValue=Int(ValueA\FloatValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Or ValueB\IntValue)
 								Case SE_FLOAT
@@ -1566,11 +1566,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\FloatValue Or ValueB\StringValue)
 							End Select
-							
+
 						Case SE_STRING
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\StringValue
+									ValueC\IntValue=Int(ValueA\StringValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Or ValueB\IntValue)
 								Case SE_FLOAT
@@ -1582,18 +1582,18 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				Else
 					ValueC\IntValue=0
 				EndIf
-				
+
 			Case SE_SHL
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
 
 				If ValueA\ValueType<=SE_STRING And ValueB\ValueType<=SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
 							ValueC\IntValue=0
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1605,11 +1605,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\IntValue Shl ValueB\StringValue)
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\FloatValue
+									ValueC\IntValue=Int(ValueA\FloatValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Shl ValueB\IntValue)
 								Case SE_FLOAT
@@ -1617,11 +1617,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\FloatValue Shl ValueB\StringValue)
 							End Select
-							
+
 						Case SE_STRING
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\StringValue
+									ValueC\IntValue=Int(ValueA\StringValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\StringValue Shl ValueB\IntValue)
 								Case SE_FLOAT
@@ -1633,18 +1633,18 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				Else
 					ValueC\IntValue=0
 				EndIf
-				
+
 			Case SE_SHR
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB=SE_GetFinalValue(ValueB)
-				
+
 				ValueC\ValueType=SE_INT
 
 				If ValueA\ValueType<=SE_STRING And ValueB\ValueType<=SE_STRING
 					Select ValueA\ValueType
 						Case SE_NULL
 							ValueC\IntValue=0
-							
+
 						Case SE_INT
 							Select ValueB\ValueType
 								Case SE_NULL
@@ -1656,11 +1656,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\IntValue Shr ValueB\StringValue)
 							End Select
-							
+
 						Case SE_FLOAT
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\FloatValue
+									ValueC\IntValue=Int(ValueA\FloatValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\FloatValue Shr ValueB\IntValue)
 								Case SE_FLOAT
@@ -1668,11 +1668,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 								Case SE_STRING
 									ValueC\IntValue=(ValueA\FloatValue Shr ValueB\StringValue)
 							End Select
-							
+
 						Case SE_STRING
 							Select ValueB\ValueType
 								Case SE_NULL
-									ValueC\IntValue=ValueA\StringValue
+									ValueC\IntValue=Int(ValueA\StringValue)
 								Case SE_INT
 									ValueC\IntValue=(ValueA\StringValue Shr ValueB\IntValue)
 								Case SE_FLOAT
@@ -1684,12 +1684,12 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				Else
 					ValueC\IntValue=0
 				EndIf
-				
+
 			Case SE_NOT
 				ValueA=SE_GetFinalValue(ValueA)
 
 				ValueB\ValueType=SE_INT
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						ValueB\IntValue=1
@@ -1702,11 +1702,11 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					Default
 						ValueB\IntValue=0
 				End Select
-				
+
 			Case SE_JMP
 				Inst=ValueA\Label
 				Jump=True
-				
+
 			Case SE_JIF
 				ValueA=SE_GetFinalValue(ValueA)
 
@@ -1714,26 +1714,26 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 					Case SE_NULL
 						Inst=ValueB\Label
 						Jump=True
-						
+
 					Case SE_INT
 						If ValueA\IntValue=0
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
-						
+
 					Case SE_FLOAT
 						If ValueA\FloatValue=0.0
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
-						
+
 					Case SE_STRING
 						If ValueA\StringValue=""
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
 				End Select
-				
+
 			Case SE_JIT
 				ValueA=SE_GetFinalValue(ValueA)
 
@@ -1743,36 +1743,30 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
-						
+
 					Case SE_FLOAT
 						If ValueA\FloatValue<>0
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
-						
+
 					Case SE_STRING
 						If ValueA\StringValue<>""
 							Inst=ValueB\Label
 							Jump=True
 						EndIf
-						
+
 					Case SE_ARRAY
 						Inst=ValueB\Label
 						Jump=True
 				End Select
-				
+
 			Case SE_MTA
 				If ValueA\ValueType=SE_ACCESSOR
-;					If ValueA\Pointer=Null
-;						ValueA\ValueType=SE_NULL
-;					Else
-;						ValueA=ValueA\Pointer
-;					EndIf
-
 					ValueA=SE_GetAccessorValue(ValueA)
 				EndIf
 
-				
+
 				Local ArgOffset=SE_ARGUMENTS_STACK_LEVEL
 
 				SE_ARGUMENTS_STACK_LEVEL=SE_ARGUMENTS_STACK_LEVEL+1
@@ -1797,24 +1791,24 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						SE_ARGUMENTS_STACK(ArgOffset)\ValueType=SE_ARRAY
 						SE_ARGUMENTS_STACK(ArgOffset)\Array=ValueA\Array
 				End Select
-				
+
 			Case SE_INVU
 				Local CurrentFunction.SE_FuncPtr=SE_CURRENT_FUNCTION
 				Local CurrentReturnValue.SE_Value=SE_RETURN_VALUE
 				Local CurrentArgsNumber=SE_ARGUMENTS_NUMBER
 				Local CurrentArgsOffset=SE_ARGUMENTS_STACK_OFFSET
-				
+
 				ValueC\ValueType=SE_NULL
 				SE_RETURN_VALUE=ValueC
 				SE_ARGUMENTS_NUMBER=ValueB\IntValue
-			
+
 				If ValueA\ValueType=SE_FUNC_PTR Then SE_InvokeUserFunction(ValueA\FuncPtr, False)
-				
+
 				SE_CURRENT_FUNCTION=CurrentFunction
 				SE_RETURN_VALUE=CurrentReturnValue
 				SE_ARGUMENTS_NUMBER=CurrentArgsNumber
 				SE_ARGUMENTS_STACK_OFFSET=CurrentArgsOffset
-				
+
 			Case SE_INVG
 				CurrentReturnValue=SE_RETURN_VALUE
 				CurrentArgsNumber=SE_ARGUMENTS_NUMBER
@@ -1827,10 +1821,10 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				SE_ARGUMENTS_NUMBER=CurrentArgsNumber
 				SE_ARGUMENTS_STACK_LEVEL=SE_ARGUMENTS_STACK_OFFSET
 				SE_ARGUMENTS_STACK_OFFSET=CurrentArgsOffset
-				
+
 			Case SE_RET
 				ValueA=SE_GetFinalValue(ValueA)
-				
+
 				Select ValueA\ValueType
 					Case SE_NULL
 						SE_RETURN_VALUE\ValueType=SE_NULL
@@ -1848,28 +1842,28 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						SE_RETURN_VALUE\Array=ValueA\Array
 				End Select
 				Exit
-				
+
 			Case SE_END
 				Exit
-			
+
 			Case SE_GP
 				ValueA=SE_GetFinalValue(ValueA)
-								
+
 				If ValueB<>ValueA
 					ValueB\ValueType=SE_POINTER
 					ValueB\Pointer=ValueA
 				Else
 					ValueB\ValueType=SE_NULL
 				EndIf
-				
+
 			Case SE_VT
 				ValueA=SE_GetFinalValue(ValueA)
 				ValueB\ValueType=SE_INT
 				ValueB\IntValue=ValueA\ValueType
-				
+
 			Case SE_ARGS
 				ValueA\Array=SE_ArgsToArray()
-				
+
 				If ValueA\Array<>Null
 					ValueA\ValueType=SE_ARRAY
 				Else
@@ -1891,18 +1885,18 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				ValueB=SE_GetFinalValue(ValueB)
 
 				ValueC\Pointer=Null
-					
+
 				If ValueA\ValueType=SE_ARRAY
 					If ValueB\ValueType=SE_INT
 						ValueC\Pointer=SE_Array_GetElement(ValueA\Array, ValueB\IntValue)
-						
+
 					Else If ValueB\ValueType=SE_FLOAT
-						ValueC\Pointer=SE_Array_GetElement(ValueA\Array, ValueB\FloatValue)
-						
+						ValueC\Pointer=SE_Array_GetElement(ValueA\Array, Int(ValueB\FloatValue))
+
 					Else If ValueB\ValueType=SE_STRING
-						ValueC\Pointer=SE_Array_GetElement(ValueA\Array, ValueB\StringValue)
+						ValueC\Pointer=SE_Array_GetElement(ValueA\Array, Int(ValueB\StringValue))
 					EndIf
-					
+
 					If ValueC\Pointer<>Null
 						ValueC\ValueType=SE_ACCESSOR
 					Else
@@ -1912,18 +1906,18 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 				Else
 					Inst\C\ValueType=SE_NULL
 				EndIf
-	
+
 			Case SE_LEN
 				ValueA=SE_GetFinalValue(ValueA)
 
 				If ValueA\ValueType=SE_STRING
 					ValueB\ValueType=SE_INT
 					ValueB\IntValue=Len(ValueA\StringValue)
-					
+
 				Else If ValueA\ValueType=SE_ARRAY
 					ValueB\ValueType=SE_INT
 					ValueB\IntValue=ValueA\Array\Elements
-					
+
 				Else
 					ValueB\ValueType=SE_STRING
 					ValueB\StringValue="undefined"
@@ -1935,12 +1929,12 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 		Else
 			If Jump=False Then Inst=Inst\NextInst
 		EndIf
-		
+
 	Forever
 
 	;Clean up stack
 	Local Index
-	
+
 	For Index=SE_TRANSIENT_STACK_OFFSET To SE_TRANSIENT_STACK_LEVEL
 		SE_GCCheck(SE_TRANSIENT_STACK(Index))
 		SE_TRANSIENT_STACK(Index)\ValueType=SE_NULL
@@ -1954,9 +1948,9 @@ Function SE_InvokeGlobalFunction(FunctionName$)
 	If SE_BL_Math(FunctionName$) Then Return
 	If SE_BL_Str(FunctionName$) Then Return
 	If SE_BL_Array(FunctionName$) Then Return
-	
+
 	Include "Example Functions.bb"
-End Function	
+End Function
 
 Function SE_IntArg%(Index, DefValue%=0)
 	If Index>=SE_ARGUMENTS_NUMBER Then Return DefValue
@@ -2000,15 +1994,15 @@ Function SE_SetValue(Pointer.SE_Value, Value$, ValueType)
 	Select ValueType
 		Case SE_NULL
 			Pointer\ValueType=SE_NULL
-			
+
 		Case SE_INT
 			Pointer\ValueType=SE_INT
-			Pointer\IntValue=Value
-			
+			Pointer\IntValue=Int(Value)
+
 		Case SE_FLOAT
 			Pointer\ValueType=SE_FLOAT
-			Pointer\FloatValue=Value
-			
+			Pointer\FloatValue=Float(Value)
+
 		Case SE_STRING
 			Pointer\ValueType=SE_STRING
 			Pointer\StringValue=Value
@@ -2017,7 +2011,7 @@ End Function
 
 Function SE_SetArray(Pointer.SE_Value, Array.SE_Array)
 	SE_GCCheck(Pointer)
-	
+
 	Pointer\ValueType=SE_ARRAY
 	Pointer\Array=Array
 End Function
@@ -2030,38 +2024,38 @@ End Function
 Function SE_ToIntArg%(Index, DefValue%=0)
 	If Index>=SE_ARGUMENTS_NUMBER Then Return DefValue
 	Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
-	
+
 	Select Argument\ValueType
 		Case SE_NULL
 			Return 0
-			
+
 		Case SE_INT
 			Return Argument\IntValue
-			
+
 		Case SE_FLOAT
-			Return Argument\FloatValue
-			
+			Return Int(Argument\FloatValue)
+
 		Case SE_STRING
-			Return Argument\StringValue
+			Return Int(Argument\StringValue)
 	End Select
 End Function
 
 Function SE_ToFloatArg#(Index, DefValue#=0)
 	If Index>=SE_ARGUMENTS_NUMBER Then Return DefValue
 	Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
-	
+
 	Select Argument\ValueType
 		Case SE_NULL
 			Return 0.0
-			
+
 		Case SE_INT
 			Return Argument\IntValue
-			
+
 		Case SE_FLOAT
 			Return Argument\FloatValue
-			
+
 		Case SE_STRING
-			Return Argument\StringValue
+			Return Float(Argument\StringValue)
 	End Select
 End Function
 
@@ -2072,19 +2066,19 @@ Function SE_ToStringArg$(Index, DefValue$="")
 	Select Argument\ValueType
 		Case SE_NULL
 			Return ""
-			
+
 		Case SE_INT
 			Return Argument\IntValue
-			
+
 		Case SE_FLOAT
 			Return Argument\FloatValue
-			
+
 		Case SE_STRING
 			Return Argument\StringValue
 	End Select
 End Function
 
-Function SE_ArgType(Index)
+Function SE_ArgType%(Index)
 	Return SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)\ValueType
 End Function
 
@@ -2092,31 +2086,31 @@ Function SE_ArgsToArray.SE_Array()
 	If SE_ARGUMENTS_NUMBER
 		Local Array.SE_Array=SE_Array_Create()
 		Local Args=SE_ARGUMENTS_NUMBER-1
-	
+
 		For Index=0 To Args
 			Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
 			Local Element.SE_Value=SE_Array_AddElement(Array)
-			
+
 			Element\ValueType=Argument\ValueType
-			
+
 			Select Argument\ValueType
 				Case SE_INT
 					Element\IntValue=Argument\IntValue
-					
+
 				Case SE_FLOAT
 					Element\FloatValue=Argument\FloatValue
-					
+
 				Case SE_STRING
 					Element\StringValue=Argument\StringValue
-					
+
 				Case SE_POINTER
 					Element\Pointer=Argument\Pointer
-					
+
 				Case SE_ARRAY
 					Element\Array=Argument\Array
 			End Select
 		Next
-		
+
 		Return Array
 	EndIf
 End Function
@@ -2218,7 +2212,7 @@ End Function
 Function SE_ValueToString$(Value.SE_Value, IgnorePointer=True)
 	If IgnorePointer=False
 		If Value\ValueType=SE_POINTER Then Value=Value\Pointer
-		
+
 	Else If Value\ValueType=SE_POINTER
 		Return ""
 	EndIf
@@ -2226,13 +2220,13 @@ Function SE_ValueToString$(Value.SE_Value, IgnorePointer=True)
 	Select Value\ValueType
 		Case SE_NULL
 			Return ""
-			
+
 		Case SE_INT
 			Return Value\IntValue
-			
+
 		Case SE_FLOAT
 			Return Value\FloatValue
-			
+
 		Case SE_STRING
 			Return Value\StringValue
 	End Select
@@ -2265,7 +2259,7 @@ Function SE_CreateInstance.SE_Instance(Script.SE_Script)
 			Instance\FirstPublic=IVar
 			Instance\LastPublic=IVar
 		EndIf
-		
+
 		SVar=SVar\NextPublic
 	Wend
 
@@ -2278,9 +2272,9 @@ Function SE_SetInstance(Instance.SE_Instance)
 
 	While SVar<>Null
 		SE_GCCheck(SVar\Value)
-		
+
 		SVar\Value\ValueType=IVar\Value\ValueType
-	
+
 		Select IVar\Value\ValueType
 			Case SE_INT
 				SVar\Value\IntValue=IVar\Value\IntValue
@@ -2293,11 +2287,11 @@ Function SE_SetInstance(Instance.SE_Instance)
 
 			Case SE_POINTER
 				SVar\Value\Pointer=IVar\Value\Pointer
-				
+
 			Case SE_ARRAY
 				SVar\Value\Array=IVar\Value\Array
 		End Select
-		
+
 		IVar=IVar\NextPublic
 		SVar=SVar\NextPublic
 	Wend
@@ -2309,9 +2303,9 @@ Function SE_UnsetInstance(Instance.SE_Instance)
 
 	While SVar<>Null
 		SE_GCCheck(IVar\Value)
-		
+
 		IVar\Value\ValueType=SVar\Value\ValueType
-	
+
 		Select SVar\Value\ValueType
 			Case SE_INT
 				IVar\Value\IntValue=SVar\Value\IntValue
@@ -2324,11 +2318,11 @@ Function SE_UnsetInstance(Instance.SE_Instance)
 
 			Case SE_POINTER
 				IVar\Value\Pointer=SVar\Value\Pointer
-				
+
 			Case SE_ARRAY
 				IVar\Value\Array=SVar\Value\Array
 		End Select
-		
+
 		IVar=IVar\NextPublic
 		SVar=SVar\NextPublic
 	Wend
@@ -2350,7 +2344,7 @@ End Function
 
 Function SE_GetInstanceVar.SE_Value(Instance.SE_Instance, Name$)
 	Local Public.SE_Public=Instance\FirstPublic
-	
+
 	While Public<>Null
 		If Public\Name=Name Then Return Public\Value
 		Public=Public\NextPublic
@@ -2415,40 +2409,10 @@ Function SE_VF_CreateInst.SE_VF_Inst(Code, A.SE_VF_Value, B.SE_VF_Value, C.SE_VF
 	Inst\A=A
 	Inst\B=B
 	Inst\C=C
-;
-;	Local DBGM$=Inst\Code+": "
-;;	If A<>Null Then DBGM=DBGM+"A "+A\ValueType+"="+A\Value+", "
-;;	If B<>Null Then DBGM=DBGM+"B "+B\ValueType+"="+B\Value+", "
-;;	If C<>Null Then DBGM=DBGM+"C "+C\ValueType+"="+C\Value
-;
-;	If A<>Null
-;		If A\ValueType>SE_STRING
-;			DBGM=DBGM+"A "+A\ValueType+"="+A\Index+", "
-;		Else
-;			DBGM=DBGM+"A "+A\ValueType+"="+A\Value+", "
-;		EndIf
-;	EndIf
-;
-;	If B<>Null
-;		If B\ValueType>SE_STRING
-;			DBGM=DBGM+"B "+B\ValueType+"="+B\Index+", "
-;		Else
-;			DBGM=DBGM+"B "+B\ValueType+"="+B\Value+", "
-;		EndIf
-;	EndIf
-;
-;	If C<>Null
-;		If C\ValueType>SE_STRING
-;			DBGM=DBGM+"C "+C\ValueType+"="+C\Index+", "
-;		Else
-;			DBGM=DBGM+"C "+C\ValueType+"="+C\Value+", "
-;		EndIf
-;	EndIf
-;	DebugLog DBGM
 
 	Inst\Index=SE_VF_INST_N
 	SE_VF_INST_N=SE_VF_INST_N+1
-	
+
 	Return Inst
 End Function
 
@@ -2494,7 +2458,7 @@ Function SE_VF_CreateLabel.SE_VF_Label()
 	Local L.SE_VF_Label=New SE_VF_Label
 	L\Index=SE_VF_LABEL_N
 	SE_VF_LABEL_N=SE_VF_LABEL_N+1
-	
+
 	Return L
 End Function
 
@@ -2507,12 +2471,12 @@ End Function
 
 Function SE_VF_BuildValue.SE_Value(SrcValue.SE_VF_Value)
 	Local Value.SE_Value
-	
+
 	Select SrcValue\ValueType
 		Case SE_NULL
 			Value=New SE_Value
 			Value\ValueType=SE_NULL
-			
+
 		Case SE_INT
 			Value=New SE_Value
 			Value\ValueType=SE_INT
@@ -2551,10 +2515,10 @@ End Function
 Function SE_VF_BuildScript.SE_Script()
 	Local Script.SE_Script=New SE_Script
 
-	Dim SE_VF_A_INST(SE_VF_INST_N)
-	Dim SE_VF_A_FUNC_PTR(SE_VF_FUNC_PTR_N)
-	Dim SE_VF_A_STATIC(SE_VF_STATIC_N)
-	Dim SE_VF_A_LABEL(SE_VF_LABEL_N)
+	Dim SE_VF_A_INST.SE_Inst(SE_VF_INST_N)
+	Dim SE_VF_A_FUNC_PTR.SE_FuncPtr(SE_VF_FUNC_PTR_N)
+	Dim SE_VF_A_STATIC.SE_Value(SE_VF_STATIC_N)
+	Dim SE_VF_A_LABEL.SE_Value(SE_VF_LABEL_N)
 
 	Local Inst.SE_VF_Inst
 	Local FuncPtr.SE_VF_FuncPtr
@@ -2578,7 +2542,7 @@ Function SE_VF_BuildScript.SE_Script()
 		Else
 			If Label\Shift Then Label\Inst=After Label\Inst
 		EndIf
-		
+
 		SE_VF_A_LABEL(Label\Index)=New SE_Value
 		SE_VF_A_LABEL(Label\Index)\ValueType=SE_LABEL
 	Next
@@ -2586,11 +2550,11 @@ Function SE_VF_BuildScript.SE_Script()
 	;	Build code
 	For Inst=Each SE_VF_Inst
 		Local A.SE_Value=Null, B.SE_Value=Null, C.SE_Value=Null
-		
+
 		If Inst\A<>Null Then A=SE_VF_BuildValue(Inst\A)
 		If Inst\B<>Null Then B=SE_VF_BuildValue(Inst\B)
 		If Inst\C<>Null Then C=SE_VF_BuildValue(Inst\C)
-		
+
 		SE_VF_A_INST(Inst\Index)=SE_CreateInst(Script, Inst\Code, A, B, C)
 	Next
 
@@ -2655,14 +2619,14 @@ Function SE_VF_SaveBin(FileName$)
 	Next
 
 	For Inst=Each SE_VF_Inst
-	
+
 		WriteByte	File, Inst\Code
 		DebugLog Inst\Code
 
 		;AAAAAAAAAA
 		If Inst\A<>Null
 			WriteByte	File, Inst\A\ValueType
-			
+
 			Select Inst\A\ValueType
 				Case SE_INT
 					WriteInt	File, Inst\A\Value
@@ -2681,7 +2645,7 @@ Function SE_VF_SaveBin(FileName$)
 		;BBBBBBBBBB
 		If Inst\B<>Null
 			WriteByte	File, Inst\B\ValueType
-			
+
 			Select Inst\B\ValueType
 				Case SE_INT
 					WriteInt	File, Inst\B\Value
@@ -2700,7 +2664,7 @@ Function SE_VF_SaveBin(FileName$)
 		;CCCCCCCCCC
 		If Inst\C<>Null
 			WriteByte	File, Inst\C\ValueType
-			
+
 			Select Inst\C\ValueType
 				Case SE_INT
 					WriteInt	File, Inst\C\Value
@@ -2767,12 +2731,13 @@ Function SE_ReadArg.SE_Value(FileHandle)
 			Value\IntValue=ReadInt(FileHandle)
 
 		Case SE_LABEL
-			Value=SE_VF_A_LABEL(ReadInt(FileHandle))
+			Local Index% = ReadInt(FileHandle)
+			Value=SE_VF_A_LABEL(Index%)
 
 		Case SE_FUNC_PTR
 			Value=New SE_Value
 			Value\ValueType=ValueType
-			Value\FuncPtr=SE_VF_A_FUNC_PTR(ReadInt(FileHandle))
+			Value\FuncPtr=SE_VF_A_FUNC_PTR.SE_FuncPtr(ReadInt(FileHandle))
 
 		Case SE_STATIC
 			Value=SE_VF_A_STATIC(ReadInt(FileHandle))
@@ -2799,10 +2764,10 @@ Function SE_LoadScriptExec.SE_Script(FileName$)
 	SE_VF_LABEL_N=ReadInt(File)-1
 	SE_VF_PUBLIC_N=ReadInt(File)-1
 
-	Dim SE_VF_A_INST(SE_VF_INST_N)
-	Dim SE_VF_A_FUNC_PTR(SE_VF_FUNC_PTR_N)
-	Dim SE_VF_A_STATIC(SE_VF_STATIC_N)
-	Dim SE_VF_A_LABEL(SE_VF_LABEL_N)
+	Dim SE_VF_A_INST.SE_Inst(SE_VF_INST_N)
+	Dim SE_VF_A_FUNC_PTR.SE_FuncPtr(SE_VF_FUNC_PTR_N)
+	Dim SE_VF_A_STATIC.SE_Value(SE_VF_STATIC_N)
+	Dim SE_VF_A_LABEL.SE_Value(SE_VF_LABEL_N)
 
 	;Prepare instructions array
 	For Index=0 To SE_VF_INST_N
@@ -2821,17 +2786,17 @@ Function SE_LoadScriptExec.SE_Script(FileName$)
 		Local LastInstIndex=ReadInt(File)
 		Local TransientValues=ReadInt(File)
 		Local Arguments=ReadInt(File)
-		
+
 		SE_VF_A_FUNC_PTR(Index)=SE_CreateFuncPtr(Script, FuncName, SE_VF_A_INST(FirstInstIndex), SE_VF_A_INST(LastInstIndex), TransientValues, Arguments)
 	Next
-	
+
 	;Labels
 	For Index=0 To SE_VF_LABEL_N
 		Local InstIndex=ReadInt(File)
 		SE_VF_A_LABEL(Index)=New SE_Value
 		SE_VF_A_LABEL(Index)\Label=SE_VF_A_INST(InstIndex)
 	Next
-	
+
 	;Public variables
 	For Index=0 To SE_VF_PUBLIC_N
 		Local PublicName$=ReadString(File)
@@ -2847,7 +2812,7 @@ Function SE_LoadScriptExec.SE_Script(FileName$)
 		Select Code
 			Case SE_INC, SE_DEC, SE_JMP, SE_MTA, SE_RET, SE_ARGS
 				SE_VF_A_INST(Index)\A=SE_ReadArg(File)
-				
+
 			Case SE_MOV, SE_NEG, SE_BN, SE_NOT, SE_JIT, SE_JIF, SE_GP, SE_VT, SE_LEN, SE_CA
 				SE_VF_A_INST(Index)\A=SE_ReadArg(File)
 				SE_VF_A_INST(Index)\B=SE_ReadArg(File)
@@ -2891,7 +2856,7 @@ Function SE_DeleteScript(Script.SE_Script)
 	Local Public.SE_Public=Script\FirstPublic
 
 	;	Delete function pointers
-	
+
 	While FuncPtr<>Null
 		Local NextFuncPtr.SE_FuncPtr=FuncPtr\NextFuncPtr
 		Delete FuncPtr
@@ -2908,7 +2873,7 @@ Function SE_DeleteScript(Script.SE_Script)
 	;	Delete instructions
 	While Inst<>Null
 		Local NextInst.SE_Inst=Inst\NextInst
-	
+
 		If Inst\A<>Null
 			SE_GCCheck(Inst\A)
 			Delete Inst\A
