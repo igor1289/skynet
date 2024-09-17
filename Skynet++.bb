@@ -2731,13 +2731,12 @@ Function SE_ReadArg.SE_Value(FileHandle)
 			Value\IntValue=ReadInt(FileHandle)
 
 		Case SE_LABEL
-			Local Index% = ReadInt(FileHandle)
-			Value=SE_VF_A_LABEL(Index%)
+			Value=SE_VF_A_LABEL(ReadInt(FileHandle))
 
 		Case SE_FUNC_PTR
 			Value=New SE_Value
 			Value\ValueType=ValueType
-			Value\FuncPtr=SE_VF_A_FUNC_PTR.SE_FuncPtr(ReadInt(FileHandle))
+			Value\FuncPtr=SE_VF_A_FUNC_PTR(ReadInt(FileHandle))
 
 		Case SE_STATIC
 			Value=SE_VF_A_STATIC(ReadInt(FileHandle))
@@ -2817,7 +2816,7 @@ Function SE_LoadScriptExec.SE_Script(FileName$)
 				SE_VF_A_INST(Index)\A=SE_ReadArg(File)
 				SE_VF_A_INST(Index)\B=SE_ReadArg(File)
 
-			Case SE_ADD, SE_SUB, SE_MUL, SE_DIV, SE_POW, SE_MOD, SE_CE, SE_CNE, SE_CG, SE_CL, SE_CGE, SE_CLE, SE_AND, SE_XOR, SE_OR, SE_SHL, SE_SHR, SE_INVU, SE_INVG, SE_CA, SE_ACC
+			Case SE_ADD, SE_SUB, SE_MUL, SE_DIV, SE_POW, SE_MOD, SE_CE, SE_CNE, SE_CG, SE_CL, SE_CGE, SE_CLE, SE_AND, SE_XOR, SE_OR, SE_SHL, SE_SHR, SE_INVU, SE_INVG, SE_ACC
 				SE_VF_A_INST(Index)\A=SE_ReadArg(File)
 				SE_VF_A_INST(Index)\B=SE_ReadArg(File)
 				SE_VF_A_INST(Index)\C=SE_ReadArg(File)
