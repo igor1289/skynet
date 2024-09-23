@@ -1976,17 +1976,19 @@ Function SE_PointerArg.SE_Value(Index)
 	If Argument\ValueType=SE_POINTER Then Return Argument\Pointer
 End Function
 
+Function SE_ArrayArg.SE_Array(Index, DefValue.SE_Array = Null)
+	If Index>=SE_ARGUMENTS_NUMBER Then Return DefValue
+	Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
+	If Argument\ValueType=SE_ARRAY Then Return Argument\Array
+End Function
+
 Function SE_ArgHandle.SE_Value(Index)		;	for advanced users only
 	If Index>=SE_ARGUMENTS_NUMBER Then Return Null
 	Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
 	Return Argument
 End Function
 
-Function SE_ArrayArg.SE_Array(Index)
-	If Index>=SE_ARGUMENTS_NUMBER Then Return Null
-	Local Argument.SE_Value=SE_ARGUMENTS_STACK(SE_ARGUMENTS_STACK_OFFSET+Index)
-	If Argument\ValueType=SE_ARRAY Then Return Argument\Array
-End Function
+
 
 Function SE_SetValue(Pointer.SE_Value, Value$, ValueType)
 	SE_GCCheck(Pointer)
