@@ -309,8 +309,6 @@ Global SE_ARGUMENTS_NUMBER				;for current function invocation
 Dim SE_ARGUMENTS_STACK.SE_Value(0)
 Dim SE_AUX_ARGUMENTS_STACK.SE_Value(0)
 
-
-
 Function SE_Init()
 	;Initialize transient stack
 	Dim SE_TRANSIENT_STACK.SE_Value(SE_TRANSIENT_STACK_SIZE)
@@ -461,6 +459,8 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 	SE_GrowTransient()
 
+	Local FunctionReturnedValue = False;
+
 	If SE_ARGUMENTS_NUMBER>0
 		SE_ARGUMENTS_STACK_OFFSET=SE_ARGUMENTS_STACK_LEVEL-SE_ARGUMENTS_NUMBER
 
@@ -476,7 +476,7 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 				Case SE_FLOAT
 					Transient\ValueType=SE_FLOAT
-					Transient\FloatValue=Argumalue
+					Transient\FloatValue=Argument\FloatValue
 
 				Case SE_STRING
 					Transient\ValueType=SE_STRING
@@ -1804,6 +1804,8 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 				If ValueA\ValueType=SE_FUNC_PTR Then SE_InvokeUserFunction(ValueA\FuncPtr, False)
 
+				SE_ARGUMENTS_STACK_LEVEL = SE_ARGUMENTS_STACK_LEVEL - SE_ARGUMENTS_NUMBER
+
 				SE_CURRENT_FUNCTION=CurrentFunction
 				SE_RETURN_VALUE=CurrentReturnValue
 				SE_ARGUMENTS_NUMBER=CurrentArgsNumber
@@ -1841,6 +1843,9 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 						SE_RETURN_VALUE\ValueType=SE_ARRAY
 						SE_RETURN_VALUE\Array=ValueA\Array
 				End Select
+
+				FunctionReturnedValue = True
+
 				Exit
 
 			Case SE_END
@@ -1942,6 +1947,16 @@ Function SE_InvokeUserFunction(FuncPtr.SE_FuncPtr, GCCollect=True)
 
 	SE_TRANSIENT_STACK_LEVEL=Level
 	SE_TRANSIENT_STACK_OFFSET=Offset
+
+	Return FunctionReturnedValue;
+End Function
+
+Function SE_CallUserFunction(FuncPtr.SE_FuncPtr)
+	SE_RETURN_VALUE\ValueType = SE_NULL;
+
+	SE_InvokeUserFunction(FuncPtr)
+
+	SE_ARGUMENTS_NUMBER = 0
 End Function
 
 Function SE_InvokeGlobalFunction(FunctionName$)
@@ -2209,6 +2224,52 @@ Function SE_FindPublic.SE_Public(Script.SE_Script, Name$)
 		If Public\Name=Name Then Return Public
 		Public=Public\NextPublic
 	Wend
+End Function
+
+Function SE_ValueToInt%(Value.SE_Value, IgnorePointer=True)
+	If IgnorePointer=False
+		If Value\ValueType=SE_POINTER Then Value=Value\Pointer
+
+	Else If Value\ValueType=SE_POINTER
+		Return 0
+	EndIf
+
+	Select Value\ValueType
+		Case SE_NULL
+			Return 0
+
+		Case SE_INT
+			Return Value\IntValue
+
+		Case SE_FLOAT
+			Return Int(Value\FloatValue)
+
+		Case SE_STRING
+			Return Int(Value\StringValue)
+	End Select
+End Function
+
+Function SE_ValueToFloat#(Value.SE_Value, IgnorePointer=True)
+	If IgnorePointer=False
+		If Value\ValueType=SE_POINTER Then Value=Value\Pointer
+
+	Else If Value\ValueType=SE_POINTER
+		Return 0.0
+	EndIf
+
+	Select Value\ValueType
+		Case SE_NULL
+			Return 0.0
+
+		Case SE_INT
+			Return Float(Value\IntValue)
+
+		Case SE_FLOAT
+			Return Value\FloatValue
+
+		Case SE_STRING
+			Return Float(Value\StringValue)
+	End Select
 End Function
 
 Function SE_ValueToString$(Value.SE_Value, IgnorePointer=True)
